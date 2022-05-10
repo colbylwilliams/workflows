@@ -33,4 +33,4 @@ jobs:
       - run: echo github.event.ref_type _____ ${{ github.event.ref_type }}
       - run: echo "- ${{ env.ENVIRONMENT_TYPE }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- ${{ env.ENVIRONMENT_NAME }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ github.event.ref_name }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
