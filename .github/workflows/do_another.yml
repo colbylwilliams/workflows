@@ -1,4 +1,4 @@
-name: do stuff
+name: do another stuff
 
 on:
   workflow_call:
@@ -10,3 +10,4 @@ jobs:
 
     steps:
       - run: echo ${{ github.event_name }}
+      - run: echo ${{ secrets.PROJECT_NAME }}

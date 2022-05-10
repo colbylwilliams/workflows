@@ -7,10 +7,21 @@ on:
   pull_request:
     types: [closed, synchronize, opened, reopened]
 
+env:
+  ENVIRONMENT_TYPE: ${{ github.event_name == 'push' && github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev' }}
+  TEST_ME_BABY: ${{ (github.event_name == 'push' && github.event.ref == 'refs/heads/main' && 'Prod') || 'Dev' }}
+
 jobs:
+  do_another_stuff:
+    uses: ./.github/workflows/do_another.yml
+    secrets: inherit
+
   do_stuff:
     name: Do stuff
     runs-on: ubuntu-latest
 
     steps:
       - run: echo ${{ github.event_name }}
+      - run: echo ${{ env.ENVIRONMENT_TYPE }}
+      - run: echo ${{ env.TEST_ME_BABY }}
+      - run: echo ${{ secrets.PROJECT_NAME }}
