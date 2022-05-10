@@ -8,7 +8,7 @@ on:
     types: [closed, synchronize, opened, reopened]
 
 env:
-  ENVIRONMENT_TYPE: ${{ github.event_name == 'push' && github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev' }}
+  ENVIRONMENT_TYPE: ${{ github.event_name == 'push' && (github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev') || github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'main' && 'Pre-Prod' || 'Test') || 'Dev' }}
   ENVIRONMENT_NAME: ${{ github.event_name == 'push' && (github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev') || github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'main' && 'Pre-Prod' || 'Test') || 'Dev' }}
   PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
 
@@ -31,4 +31,6 @@ jobs:
       - run: echo env.ENVIRONMENT_NAME _____ ${{ env.ENVIRONMENT_NAME }}
       - run: echo secrets.PROJECT_NAME _____ ${{ secrets.PROJECT_NAME }}
       - run: echo github.event.ref_type _____ ${{ github.event.ref_type }}
+      - run: echo "- ${{ env.ENVIRONMENT_TYPE }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- ${{ env.ENVIRONMENT_NAME }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ github.event.ref_name }}" >> $GITHUB_STEP_SUMMARY
