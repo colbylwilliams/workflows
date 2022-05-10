@@ -9,7 +9,7 @@ on:
 
 env:
   ENVIRONMENT_TYPE: ${{ github.event_name == 'push' && github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev' }}
-  TEST_ME_BABY: ${{ (github.event_name == 'push' && github.event.ref == 'refs/heads/main' && 'Prod') || 'Dev' }}
+  TEST_ME_BABY: ${{ github.event_name == 'push' && (github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev') ||  github.event.pull_request.base.ref == 'main' && 'Pre-Prod' || 'Test' }}
   PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
 
 jobs:
@@ -22,10 +22,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: echo ${{ github.event_name }}
-      - run: echo ${{ env.ENVIRONMENT_TYPE }}
-      - run: echo ${{ env.TEST_ME_BABY }}
-      - run: echo ${{ secrets.PROJECT_NAME }}
+      - run: echo github.event_name ${{ github.event_name }}
+      - run: echo github.event.ref ${{ github.event.ref }}
+      - run: echo github.event.pull_request.base.ref ${{ github.event.pull_request.base.ref }}
+
+      - run: echo github.event_name ${{ github.event_name }}
+      - run: echo env.ENVIRONMENT_TYPE ${{ env.ENVIRONMENT_TYPE }}
+      - run: echo env.TEST_ME_BABY ${{ env.TEST_ME_BABY }}
+      - run: echo secrets.PROJECT_NAME ${{ secrets.PROJECT_NAME }}
 
       - if: ${{ env.PROJECT_NAME != '' }}
         run: echo 'This step will only run if the secret has a value set.'
