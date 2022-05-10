@@ -7,10 +7,27 @@ on:
   pull_request:
     types: [closed, synchronize, opened, reopened]
 
+env:
+  ENVIRONMENT_TYPE: ${{ github.event_name == 'push' && github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev' }}
+  TEST_ME_BABY: ${{ (github.event_name == 'push' && github.event.ref == 'refs/heads/main' && 'Prod') || 'Dev' }}
+  PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
+
 jobs:
+  do_another_stuff:
+    uses: ./.github/workflows/do_another.yml
+    secrets: inherit
+
   do_stuff:
     name: Do stuff
     runs-on: ubuntu-latest
 
     steps:
       - run: echo ${{ github.event_name }}
+      - run: echo ${{ env.ENVIRONMENT_TYPE }}
+      - run: echo ${{ env.TEST_ME_BABY }}
+      - run: echo ${{ secrets.PROJECT_NAME }}
+
+      - if: ${{ env.PROJECT_NAME != '' }}
+        run: echo 'This step will only run if the secret has a value set.'
+      - if: ${{ env.PROJECT_NAME == '' }}
+        run: echo 'This step will only run if the secret does not have a value set.'
