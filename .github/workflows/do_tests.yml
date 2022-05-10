@@ -31,8 +31,4 @@ jobs:
       - run: echo env.ENVIRONMENT_NAME _____ ${{ env.ENVIRONMENT_NAME }}
       - run: echo secrets.PROJECT_NAME _____ ${{ secrets.PROJECT_NAME }}
       - run: echo github.event.ref_type _____ ${{ github.event.ref_type }}
-
-      - if: ${{ env.PROJECT_NAME != '' }}
-        run: echo 'This step will only run if the secret has a value set.'
-      - if: ${{ env.PROJECT_NAME == '' }}
-        run: echo 'This step will only run if the secret does not have a value set.'
+      - run: echo "- ${{ env.ENVIRONMENT_NAME }}" >> $GITHUB_STEP_SUMMARY

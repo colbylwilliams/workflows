@@ -14,8 +14,3 @@ jobs:
     steps:
       - run: echo ${{ github.event_name }}
       - run: echo ${{ secrets.PROJECT_NAME }}
-
-      - if: ${{ env.PROJECT_NAME != '' }}
-        run: echo 'This step will only run if the secret has a value set.'
-      - if: ${{ env.PROJECT_NAME == '' }}
-        run: echo 'This step will only run if the secret does not have a value set.'
