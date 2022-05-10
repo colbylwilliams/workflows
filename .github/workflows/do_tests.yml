@@ -9,7 +9,7 @@ on:
 
 env:
   ENVIRONMENT_TYPE: ${{ github.event_name == 'push' && github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev' }}
-  TEST_ME_BABY: ${{ github.event_name == 'push' && (github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev') ||  github.event.pull_request.base.ref == 'main' && 'Pre-Prod' || 'Test' }}
+  TEST_ME_BABY: ${{ github.event_name == 'push' && (github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev') || github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'main' && 'Pre-Prod' || 'Test') || 'Dev' }}
   PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
 
 jobs:
