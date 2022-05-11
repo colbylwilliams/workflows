@@ -16,7 +16,9 @@ jobs:
     name: Do stuff
     needs: env_config
     runs-on: ubuntu-latest
-    environment: ${{ needs.env_config.outputs.type }}
+    environment:
+      name: ${{ needs.env_config.outputs.type }}
+      url: https://portal.azure.com/#@DDCET.onmicrosoft.com/resource/subscriptions/b6de8d3f-8477-45fe-8d60-f30c6db2cb06/resourceGroups/TeamCloud-Reset
 
     steps:
       - run: echo github.event_name _____ ${{ github.event_name }}
