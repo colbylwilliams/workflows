@@ -10,6 +10,9 @@ on:
       type:
         description: 'The type of the environment'
         value: ${{ jobs.env_config.outputs.type }}
+      fidalgo:
+        description: 'The url to the fidalgo azure cli extension'
+        value: ${{ jobs.env_config.outputs.fidalgo }}
 
 env:
   # format: ci-[branch|pr]-[branch name|pr number]-suffex
@@ -23,6 +26,8 @@ env:
   # main branch          | Prod
   ENVIRONMENT_TYPE: ${{ github.event_name == 'push' && (github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev') || github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'main' && 'Pre-Prod' || 'Test') || 'Dev' }}
 
+  FIDALGO_EXTENSION: https://portal.azure.com/#@DDCET.onmicrosoft.com/resource/subscriptions/b6de8d3f-8477-45fe-8d60-f30c6db2cb06/resourceGroups/TeamCloud-Reset
+
 jobs:
   env_config:
     name: Get Environment Configuration
@@ -31,16 +36,20 @@ jobs:
     outputs:
       name: ${{ steps.get_config.outputs.name }}
       type: ${{ steps.get_config.outputs.type }}
+      fidalgo: ${{ steps.get_config.outputs.fidalgo }}
 
     steps:
-      - run: echo "- ${{ env.ENVIRONMENT_TYPE }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- ${{ env.ENVIRONMENT_NAME }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ env.ENVIRONMENT_TYPE }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ env.FIDALGO_EXTENSION }}" >> $GITHUB_STEP_SUMMARY
 
       - id: get_config
         shell: python
         run: |
           env_name = '${{ env.ENVIRONMENT_NAME }}'
           env_type = '${{ env.ENVIRONMENT_TYPE }}'
+          fidalgo = '${{ env.FIDALGO_EXTENSION }}'
 
           print("::set-output name=name::{}".format(env_name))
           print("::set-output name=type::{}".format(env_type))
+          print("::set-output name=fidalgo::{}".format(fidalgo))
