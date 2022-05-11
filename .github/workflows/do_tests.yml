@@ -16,7 +16,7 @@ jobs:
     name: Do stuff
     needs: env_config
     runs-on: ubuntu-latest
-    environment: needs.env_config.outputs.type
+    environment: ${{ needs.env_config.outputs.type }}
 
     steps:
       - run: echo github.event_name _____ ${{ github.event_name }}
@@ -26,5 +26,3 @@ jobs:
 
       - run: echo "- ${{ needs.env_config.outputs.name }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- ${{ needs.env_config.outputs.type }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ needs.env_config.outputs.project_name }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ needs.env_config.outputs.project_group }}" >> $GITHUB_STEP_SUMMARY
