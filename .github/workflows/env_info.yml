@@ -42,7 +42,7 @@ jobs:
     name: Environment Info
     runs-on: ubuntu-latest
     environment:
-      name: ${{ env.ENVIRONMENT_TYPE }}
+      name: env.ENVIRONMENT_TYPE
     # Map the job outputs to step outputs
     outputs:
       name: ${{ steps.get_config.outputs.name }}
