@@ -5,6 +5,8 @@ on:
   pull_request:
     types: [closed]
 
+concurrency: ${{ github.event.number || github.ref_name }}
+
 jobs:
   env_config:
     uses: ./.github/workflows/env_config.yml
