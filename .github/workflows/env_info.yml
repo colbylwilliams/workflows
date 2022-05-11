@@ -54,9 +54,9 @@ jobs:
       catalog_item: ${{ steps.get_config.outputs.catalog_item }}
 
     steps:
-      - run: echo "- ${{ env.ENVIRONMENT_NAME }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ env.ENVIRONMENT_TYPE }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ github.event.number || github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **Environment Name** ${{ env.ENVIRONMENT_NAME }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **Environment Type** ${{ env.ENVIRONMENT_TYPE }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **Catalog Item Name** ${{ env.CATALOG_ITEM_NAME }}" >> $GITHUB_STEP_SUMMARY
 
       - id: get_config
         shell: python
