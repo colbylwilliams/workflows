@@ -109,7 +109,7 @@ jobs:
                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, universal_newlines=True)
               environment = json.loads(result.stdout)
 
-              exists = True
+              exists = False
 
           except subprocess.CalledProcessError as e:
               if 'ResourceNotFound' in e.stderr:
