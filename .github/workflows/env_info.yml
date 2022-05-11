@@ -15,13 +15,13 @@ on:
         value: ${{ jobs.env_info.outputs.fidalgo }}
       exists:
         description: 'True if the environment exists otherwise False'
-        value: ${{ jobs.get_env.outputs.exists }}
+        value: ${{ jobs.get_info.outputs.exists }}
       id:
         description: 'The id of the environment resource'
-        value: ${{ jobs.get_env.outputs.id }}
+        value: ${{ jobs.get_info.outputs.id }}
       group:
         description: 'The id of the environment resource group'
-        value: ${{ jobs.get_env.outputs.group }}
+        value: ${{ jobs.get_info.outputs.group }}
 
 env:
   # format: ci-[branch|pr]-[branch name|pr number]-suffex
