@@ -27,14 +27,14 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Install Fidalgo CLI Extension
-        run: az extension add -s ${{ needs.env_config.outputs.fidalgo }} -y
+        run: az extension add -s ${{ needs.env_info.outputs.fidalgo }} -y
 
       - name: Update Environment
         if: ${{ needs.env_info.outputs.exists == 'true' }}
         run: |
-          az fidalgo admin environment deploy -g ${{ secrets.PROJECT_RESOURCE_GROUP }} --project-name ${{ secrets.PROJECT_NAME }} -n ${{ needs.env_config.outputs.name }}
+          az fidalgo admin environment deploy -g ${{ secrets.PROJECT_RESOURCE_GROUP }} --project-name ${{ secrets.PROJECT_NAME }} -n ${{ needs.env_info.outputs.name }}
 
       - name: Create Environment
         if: ${{ needs.env_info.outputs.exists == 'false' }}
         run: |
-          az fidalgo admin environment create -g ${{ secrets.PROJECT_RESOURCE_GROUP }} --project-name ${{ secrets.PROJECT_NAME }} -n ${{ needs.env_config.outputs.name }} --environment-type ${{ needs.env_config.outputs.type }} --catalog-item-name ${{ needs.env_config.outputs.catalog_item }}
+          az fidalgo admin environment create -g ${{ secrets.PROJECT_RESOURCE_GROUP }} --project-name ${{ secrets.PROJECT_NAME }} -n ${{ needs.env_info.outputs.name }} --environment-type ${{ needs.env_info.outputs.type }} --catalog-item-name ${{ needs.env_info.outputs.catalog_item }}
