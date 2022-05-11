@@ -1,30 +1,24 @@
-name: do stuff
+name: Delete Environment
 
 on:
-  create:
   delete:
-  push:
   pull_request:
-    types: [closed, synchronize, opened, reopened]
+    types: [closed]
 
 jobs:
   env_config:
     uses: ./.github/workflows/env_config.yml
     secrets: inherit
 
-  do_stuff:
-    name: Do stuff
-    needs: env_config
+  delete_env:
+    name: Delete Environment
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event.ref_type == 'branch'
+    needs: env_config
     environment:
       name: ${{ needs.env_config.outputs.type }}
 
     steps:
-      - run: echo github.event_name _____ ${{ github.event_name }}
-      - run: echo github.event.ref _____ ${{ github.event.ref }}
-      - run: echo github.event.pull_request.base.ref _____ ${{ github.event.pull_request.base.ref }}
-      - run: echo github.event.ref_type _____ ${{ github.event.ref_type }}
-
       - run: echo "- ${{ needs.env_config.outputs.name }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- ${{ needs.env_config.outputs.type }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- ${{ needs.env_config.outputs.fidalgo }}" >> $GITHUB_STEP_SUMMARY
