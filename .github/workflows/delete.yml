@@ -9,6 +9,7 @@ concurrency: ${{ github.event.number || github.ref_name }}
 
 jobs:
   env_info:
+    name: Get Environment
     uses: ./.github/workflows/env_info.yml
     secrets: inherit
 
