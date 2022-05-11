@@ -10,12 +10,6 @@ on:
       type:
         description: 'The type of the environment'
         value: ${{ jobs.env_config.outputs.type }}
-      project_name:
-        description: 'The name of the project'
-        value: ${{ jobs.env_config.outputs.project_name }}
-      project_group:
-        description: 'The name of the project resource group'
-        value: ${{ jobs.env_config.outputs.project_group }}
 
 env:
   # format: ci-[branch|pr]-[branch name|pr number]-suffex
@@ -37,8 +31,6 @@ jobs:
     outputs:
       name: ${{ steps.get_config.outputs.name }}
       type: ${{ steps.get_config.outputs.type }}
-      project_name: ${{ steps.get_config.outputs.project_name }}
-      project_group: ${{ steps.get_config.outputs.project_group }}
 
     steps:
       - run: echo "- ${{ env.ENVIRONMENT_TYPE }}" >> $GITHUB_STEP_SUMMARY
@@ -47,12 +39,8 @@ jobs:
       - id: get_config
         shell: python
         run: |
-          project_name = '${{ secrets.PROJECT_NAME }}'
-          project_group = '${{ secrets.PROJECT_RESOURCE_GROUP }}'
           env_name = '${{ env.ENVIRONMENT_NAME }}'
           env_type = '${{ env.ENVIRONMENT_TYPE }}'
 
           print("::set-output name=name::{}".format(env_name))
           print("::set-output name=type::{}".format(env_type))
-          print("::set-output name=project_name::{}".format(project_name))
-          print("::set-output name=project_group::{}".format(project_group))
