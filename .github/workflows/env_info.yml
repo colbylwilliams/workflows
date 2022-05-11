@@ -39,10 +39,12 @@ env:
 
 jobs:
   env_info:
+    env:
+      ENVIRONMENT_TYPE: ${{ github.event_name == 'push' && (github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev') || github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'main' && 'Pre-Prod' || 'Test') || 'Dev' }}
     name: Environment Info
     runs-on: ubuntu-latest
     environment:
-      name: env.ENVIRONMENT_TYPE
+      name: ${{ env.ENVIRONMENT_TYPE }}
     # Map the job outputs to step outputs
     outputs:
       name: ${{ steps.get_config.outputs.name }}
