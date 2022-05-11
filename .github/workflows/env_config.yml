@@ -42,12 +42,12 @@ jobs:
       - run: echo "- ${{ env.ENVIRONMENT_NAME }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- ${{ env.ENVIRONMENT_TYPE }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- ${{ env.FIDALGO_EXTENSION }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ github.ref }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ github.event.ref }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- github.event_name ______ ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- github.ref ______ ${{ github.ref }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- github.ref_name ______ ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- github.event.ref ______ ${{ github.event.ref }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- github.event.number ______ ${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- github.head_ref ______ ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
 
       - id: get_config
         shell: python
