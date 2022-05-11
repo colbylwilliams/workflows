@@ -13,6 +13,15 @@ on:
       fidalgo:
         description: 'The url to the fidalgo azure cli extension'
         value: ${{ jobs.env_config.outputs.fidalgo }}
+      exists:
+        description: 'True if the environment exists otherwise False'
+        value: ${{ jobs.get_env.outputs.exists }}
+      id:
+        description: 'The id of the environment resource'
+        value: ${{ jobs.get_env.outputs.id }}
+      group:
+        description: 'The id of the environment resource group'
+        value: ${{ jobs.get_env.outputs.group }}
 
 env:
   # format: ci-[branch|pr]-[branch name|pr number]-suffex
@@ -26,17 +35,21 @@ env:
   # main branch          | Prod
   ENVIRONMENT_TYPE: ${{ github.event_name == 'push' && (github.event.ref == 'refs/heads/main' && 'Prod' || 'Dev') || github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'main' && 'Pre-Prod' || 'Test') || 'Dev' }}
 
-  FIDALGO_EXTENSION: https://portal.azure.com/#@DDCET.onmicrosoft.com/resource/subscriptions/b6de8d3f-8477-45fe-8d60-f30c6db2cb06/resourceGroups/TeamCloud-Reset
+  FIDALGO_EXTENSION: https://fidalgosetup.blob.core.windows.net/cli-extensions/fidalgo-0.3.2-py3-none-any.whl
 
 jobs:
   env_config:
     name: Get Environment Configuration
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ env.ENVIRONMENT_TYPE }}
     # Map the job outputs to step outputs
     outputs:
       name: ${{ steps.get_config.outputs.name }}
       type: ${{ steps.get_config.outputs.type }}
       fidalgo: ${{ steps.get_config.outputs.fidalgo }}
+      id: ${{ steps.get_env.outputs.id }}
+      group: ${{ steps.get_env.outputs.group }}
 
     steps:
       - run: echo "- ${{ env.ENVIRONMENT_NAME }}" >> $GITHUB_STEP_SUMMARY
@@ -60,3 +73,44 @@ jobs:
           print("::set-output name=name::{}".format(env_name))
           print("::set-output name=type::{}".format(env_type))
           print("::set-output name=fidalgo::{}".format(fidalgo))
+
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Install Fidalgo CLI Extension
+        run: az extension add -s ${{ env.FIDALGO_EXTENSION }} -y
+
+      - id: get_env
+        shell: python
+        run: |
+          import json
+          import subprocess
+          import sys
+
+          rg = '${{ secrets.FIDALGO_PROJECT_GROUP }}'
+          proj = '${{ secrets.FIDALGO_PROJECT_NAME }}'
+          name = '${{ env.ENVIRONMENT_NAME }}'
+
+          try:
+              result = subprocess.run(['az', 'fidalgo', 'admin', 'environment', 'show', '-g', rg, '--project-name', proj, '-n', name],
+                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, universal_newlines=True)
+              environment = json.loads(result.stdout)
+
+              exists = True
+
+          except subprocess.CalledProcessError as e:
+              if 'ResourceNotFound' in e.stderr:
+                  exists = False
+              else:
+                  sys.exit(e.stderr if e.stderr else 'Could not find Fidalgo environment')
+
+          except json.decoder.JSONDecodeError:
+              sys.exit('{}: {}'.format('Could not find Fidalgo environment', result.stderr if result.stderr else result.stdout if result.stdout else result))
+
+          if exists:
+              print("::set-output name=id::{}".format(environment['id']))
+              print("::set-output name=group::{}".format(environment['resourceGroupId']))
+
+          print("::set-output name=exists::{}".format(exists))
