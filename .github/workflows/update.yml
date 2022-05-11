@@ -8,18 +8,21 @@ on:
 concurrency: ${{ github.event.number || github.ref_name }}
 
 jobs:
-  env_config:
-    uses: ./.github/workflows/env_config.yml
+  env_info:
+    uses: ./.github/workflows/env_info.yml
     secrets: inherit
 
   update_env:
     name: Update Environment
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || (contains(github.event.ref, 'refs/heads') && !github.event.created)
-    needs: env_config
+    needs: env_info
     environment:
-      name: ${{ needs.env_config.outputs.type }}
+      name: ${{ needs.env_info.outputs.type }}
 
     steps:
-      - run: echo "- ${{ needs.env_config.outputs.name }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ needs.env_config.outputs.type }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- name ${{ needs.env_info.outputs.name }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- type ${{ needs.env_info.outputs.type }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- exists ${{ needs.env_info.outputs.exists }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- id ${{ needs.env_info.outputs.id }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- group ${{ needs.env_info.outputs.group }}" >> $GITHUB_STEP_SUMMARY
