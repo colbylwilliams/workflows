@@ -5,6 +5,8 @@ on:
   pull_request:
     types: [synchronize]
 
+concurrency: ${{ github.event.number || github.ref_name }}
+
 jobs:
   env_config:
     uses: ./.github/workflows/env_config.yml
@@ -21,5 +23,3 @@ jobs:
     steps:
       - run: echo "- ${{ needs.env_config.outputs.name }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- ${{ needs.env_config.outputs.type }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ needs.env_config.outputs.fidalgo }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
