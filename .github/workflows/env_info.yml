@@ -91,8 +91,8 @@ jobs:
           import subprocess
           import sys
 
-          rg = '${{ secrets.FIDALGO_PROJECT_GROUP }}'
-          proj = '${{ secrets.FIDALGO_PROJECT_NAME }}'
+          rg = '${{ secrets.PROJECT_RESOURCE_GROUP }}'
+          proj = '${{ secrets.PROJECT_NAME }}'
           name = '${{ needs.env_config.outputs.name }}'
 
           try:
