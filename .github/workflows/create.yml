@@ -1,0 +1,25 @@
+name: Create Environment
+
+on:
+  create:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  env_config:
+    uses: ./.github/workflows/env_config.yml
+    secrets: inherit
+
+  create_env:
+    name: Create Environment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event.ref_type == 'branch'
+    needs: env_config
+    environment:
+      name: ${{ needs.env_config.outputs.type }}
+
+    steps:
+      - run: echo "- ${{ needs.env_config.outputs.name }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ needs.env_config.outputs.type }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ needs.env_config.outputs.fidalgo }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY

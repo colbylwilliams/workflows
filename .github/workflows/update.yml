@@ -1,0 +1,25 @@
+name: Update Environment
+
+on:
+  push:
+  pull_request:
+    types: [synchronize]
+
+jobs:
+  env_config:
+    uses: ./.github/workflows/env_config.yml
+    secrets: inherit
+
+  update_env:
+    name: Update Environment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || (contains(github.event.ref, 'refs/heads') && !github.event.created)
+    needs: env_config
+    environment:
+      name: ${{ needs.env_config.outputs.type }}
+
+    steps:
+      - run: echo "- ${{ needs.env_config.outputs.name }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ needs.env_config.outputs.type }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ needs.env_config.outputs.fidalgo }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
