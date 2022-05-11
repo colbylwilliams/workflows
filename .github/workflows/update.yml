@@ -29,7 +29,7 @@ jobs:
       - run: echo "- group ${{ needs.env_info.outputs.group }}" >> $GITHUB_STEP_SUMMARY
 
       - run: echo "yep"
-        if: ${{ needs.env_info.outputs.exists }}
+        if: ${{ needs.env_info.outputs.exists == 'true' }}
 
       - run: echo "nope"
-        if: ${{ !needs.env_info.outputs.exists }}
+        if: ${{ needs.env_info.outputs.exists == 'false' }}
