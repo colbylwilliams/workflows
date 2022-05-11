@@ -42,7 +42,11 @@ jobs:
       - run: echo "- ${{ env.ENVIRONMENT_NAME }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- ${{ env.ENVIRONMENT_TYPE }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- ${{ env.FIDALGO_EXTENSION }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ github.ref }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ github.event.ref }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
 
       - id: get_config
         shell: python
