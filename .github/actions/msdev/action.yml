@@ -1,0 +1,26 @@
+name: 'msdev action'
+description: 'github action for msdev'
+author: 'colbylwilliams'
+inputs:
+  azure:
+    required: false
+    description: 'path to azure.yml file'
+    default: 'azure.yml'
+outputs:
+  name:
+    description: 'The name of the environment'
+  type:
+    description: 'The type of the environment'
+  fidalgo:
+    description: 'The url to the fidalgo azure cli extension'
+  catalog_item:
+    description: 'The name of the catalog item'
+  exists:
+    description: 'True if the environment exists otherwise False'
+  subscription:
+    description: 'The subscription of the environment resource'
+  group:
+    description: 'The name of the environment resource group'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
