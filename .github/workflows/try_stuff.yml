@@ -6,4 +6,5 @@ jobs:
   parse_yml:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - run: cat ./.github/azure.yaml
