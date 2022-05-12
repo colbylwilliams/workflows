@@ -1,5 +1,6 @@
 tenant: DDCET.onmicrosoft.com
 fidalgo:
+  extension: https://fidalgosetup.blob.core.windows.net/cli-extensions/fidalgo-0.3.2-py3-none-any.whl
   project:
     name: Workflows
     group: FidalgoTestProject

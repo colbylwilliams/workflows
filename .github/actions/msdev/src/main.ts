@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import * as github from '@actions/github';
 import * as glob from '@actions/glob';
 import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
@@ -10,6 +11,7 @@ interface AzureYml {
 }
 
 interface Fidalgo {
+    extension: string;
     project: FidalgoProject;
     catalog_item: string;
 }
@@ -31,6 +33,7 @@ async function run(): Promise<void> {
         const file = files.length > 0 ? files[0] : undefined;
 
         if (file) {
+
             core.info(`Found azure.yml file: ${file}`);
 
             const contents = await fs.readFile(file, 'utf8');
@@ -43,6 +46,15 @@ async function run(): Promise<void> {
                 core.setOutput('tenant', tenantId);
             } else {
                 core.setFailed(`Could not tenant id from azure.yml: ${contents}`);
+            }
+
+            const fidalgoExt = azure.fidalgo.project.name;
+
+            if (fidalgoExt) {
+                core.info(`Found fidalgo extension in azure.yml file: ${fidalgoExt}`);
+                core.setOutput('fidalgo', fidalgoExt);
+            } else {
+                core.setFailed(`Could not get fidalgo extension from azure.yml: ${contents}`);
             }
 
             const projectName = azure.fidalgo.project.name;
@@ -72,6 +84,9 @@ async function run(): Promise<void> {
                 core.setFailed(`Could not get catalog item from azure.yml: ${contents}`);
             }
 
+            const context = JSON.stringify(github.context, undefined, 2);
+            core.info(`Context: ${context}`);
+            // core.info(`Payload: ${payload}`);
         } else {
             core.setFailed(`Could not find azure.yml file with specified glob: ${pattern}`);
         }
