@@ -21,7 +21,7 @@ jobs:
     needs: env_info
     environment:
       name: ${{ needs.env_info.outputs.type }}
-      url: '/subscriptions/${{ needs.env_info.outputs.subscription }}/resourceGroups/${{ secrets.PROJECT_NAME }}-${{ needs.env_info.outputs.name }}'
+      # url: '/subscriptions/${{ needs.env_info.outputs.subscription }}/resourceGroups/${{ secrets.PROJECT_NAME }}-${{ needs.env_info.outputs.name }}'
 
     steps:
       - name: Login to Azure CLI
