@@ -32,4 +32,4 @@ jobs:
 
       - name: Delete Environment
         run: |
-          az fidalgo admin environment delete -g ${{ secrets.PROJECT_RESOURCE_GROUP }} --project-name ${{ secrets.PROJECT_NAME }} -n ${{ needs.env_info.outputs.name }}
+          az fidalgo admin environment delete -g ${{ secrets.PROJECT_RESOURCE_GROUP }} --project-name ${{ secrets.PROJECT_NAME }} -n ${{ needs.env_info.outputs.name }} -y

@@ -25,6 +25,9 @@ on:
       group:
         description: 'The id of the environment resource group'
         value: ${{ jobs.env_details.outputs.group }}
+      tenant:
+        description: 'The id of the tenant'
+        value: ${{ jobs.env_details.outputs.tenant }}
 
 env:
   CATALOG_ITEM_NAME: Empty
@@ -82,6 +85,7 @@ jobs:
       exists: ${{ steps.get_env.outputs.exists }}
       id: ${{ steps.get_env.outputs.id }}
       group: ${{ steps.get_env.outputs.group }}
+      tenant: ${{ steps.get_tenant.outputs.tenant }}
 
     steps:
       - name: Login to Azure CLI
@@ -91,6 +95,13 @@ jobs:
 
       - name: Install Fidalgo CLI Extension
         run: az extension add -s ${{ needs.env_config.outputs.fidalgo }} -y
+
+      - id: get_tenant
+        name: Get Tenant Domain
+        run: |
+          tenant=$( az rest --method get --url https://graph.microsoft.com/v1.0/domains --query 'value[?isDefault].id' -o tsv )
+          echo $tenant
+          echo "::set-output name=tenant::$tenant"
 
       - id: get_env
         name: Get Fidalgo Environment
