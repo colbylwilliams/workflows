@@ -1,0 +1,9 @@
+name: Test Environment
+
+on: workflow_dispatch
+
+jobs:
+  parse_yml:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cat ./.github/azure.yaml
