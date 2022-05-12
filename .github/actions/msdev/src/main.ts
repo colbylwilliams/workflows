@@ -29,6 +29,8 @@ async function run(): Promise<void> {
 
         const context = github.context;
 
+        core.info(`ref: ${context.ref}`);
+
         const part_ref = context.eventName === 'pull_request' ? 'pr' : 'branch';
         const name_part = context.eventName === 'pull_request' ? context.issue.number : context.eventName === 'push' ? context.ref.split('/')[-1] : context.ref;
         const suffix_part = context.payload.repository!['id'];
