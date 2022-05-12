@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import * as exec from '@actions/exec';
 import * as glob from '@actions/glob';
 import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
@@ -33,9 +34,9 @@ async function run(): Promise<void> {
             core.info(`Found azure.yml file: ${file}`);
 
             const contents = await fs.readFile(file, 'utf8');
-            const data = yaml.load(contents) as AzureYml;
+            const azure = yaml.load(contents) as AzureYml;
 
-            const tenantId = data.fidalgo.project.name;
+            const tenantId = azure.tenant;
 
             if (tenantId) {
                 core.info(`Found tenant id in azure.yml file: ${tenantId}`);
@@ -44,7 +45,7 @@ async function run(): Promise<void> {
                 core.setFailed(`Could not tenant id from azure.yml: ${contents}`);
             }
 
-            const projectName = data.fidalgo.project.name;
+            const projectName = azure.fidalgo.project.name;
 
             if (projectName) {
                 core.info(`Found project name in azure.yml file: ${projectName}`);
@@ -53,7 +54,7 @@ async function run(): Promise<void> {
                 core.setFailed(`Could not get project name from azure.yml: ${contents}`);
             }
 
-            const projectGroup = data.fidalgo.project.group;
+            const projectGroup = azure.fidalgo.project.group;
 
             if (projectGroup) {
                 core.info(`Found project group in azure.yml file: ${projectGroup}`);
@@ -62,7 +63,7 @@ async function run(): Promise<void> {
                 core.setFailed(`Could not get project group from azure.yml: ${contents}`);
             }
 
-            const catalogItem = data.fidalgo.catalog_item;
+            const catalogItem = azure.fidalgo.catalog_item;
 
             if (catalogItem) {
                 core.info(`Found catalog item in azure.yml file: ${catalogItem}`);
@@ -71,23 +72,14 @@ async function run(): Promise<void> {
                 core.setFailed(`Could not get catalog item from azure.yml: ${contents}`);
             }
 
-
         } else {
             core.setFailed(`Could not find azure.yml file with specified glob: ${pattern}`);
         }
 
-        files.forEach(file => {
-            core.info(`Found file: ${file}`);
-        });
+        const account = exec.getExecOutput('az', ['account', 'show', '--output', 'json']);
 
-        // const ms: string = core.getInput('milliseconds');
-        // core.debug(`Waiting ${ms} milliseconds ...`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+        core.info(`az account show: ${account}`);
 
-        // core.debug(new Date().toTimeString());
-        // await wait(parseInt(ms, 10));
-        // core.debug(new Date().toTimeString());
-
-        // core.setOutput('time', new Date().toTimeString());
     } catch (error) {
         if (error instanceof Error) core.setFailed(error.message);
     }

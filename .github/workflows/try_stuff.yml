@@ -7,10 +7,19 @@ on:
 jobs:
   parse_yml:
     runs-on: ubuntu-latest
+    environment: Dev
+
     steps:
       - uses: actions/checkout@v3
+
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - id: msdev
         uses: ./.github/actions/msdev
+
       - run: echo "- **name**  ${{ steps.msdev.outputs.name }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- **type**  ${{ steps.msdev.outputs.type }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- **fidalgo**  ${{ steps.msdev.outputs.fidalgo }}" >> $GITHUB_STEP_SUMMARY
