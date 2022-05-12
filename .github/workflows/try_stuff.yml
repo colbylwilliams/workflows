@@ -9,4 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/msdev
+      - id: msdev
+        uses: ./.github/actions/msdev
+      - run: echo "- **name**  ${{ steps.msdev.outputs.name }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **type**  ${{ steps.msdev.outputs.type }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **fidalgo**  ${{ steps.msdev.outputs.fidalgo }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **tenant**  ${{ steps.msdev.outputs.tenant }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **project_name**  ${{ steps.msdev.outputs.project_name }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **project_group**  ${{ steps.msdev.outputs.project_group }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **catalog_item**  ${{ steps.msdev.outputs.catalog_item }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **exists**  ${{ steps.msdev.outputs.exists }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **subscription**  ${{ steps.msdev.outputs.subscription }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **group**  ${{ steps.msdev.outputs.group }}" >> $GITHUB_STEP_SUMMARY

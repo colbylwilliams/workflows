@@ -46,26 +46,50 @@ const yaml = __importStar(__nccwpck_require__(1917));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const azureyml = core.getInput('azure');
-            core.info(`azure input: ${azureyml}`);
-            const globber = yield glob.create(azureyml);
+            const pattern = core.getInput('azure');
+            core.info(`azure input: ${pattern}`);
+            const globber = yield glob.create(pattern);
             const files = yield globber.glob();
             const file = files.length > 0 ? files[0] : undefined;
             if (file) {
                 core.info(`Found azure.yml file: ${file}`);
                 const contents = yield fs.readFile(file, 'utf8');
                 const data = yaml.load(contents);
-                const project = data.fidalgo.project;
-                if (project) {
-                    core.info(`Found project in azure.yml file: ${project}`);
-                    core.setOutput('project', project);
+                const tenantId = data.fidalgo.project.name;
+                if (tenantId) {
+                    core.info(`Found tenant id in azure.yml file: ${tenantId}`);
+                    core.setOutput('tenant', tenantId);
                 }
                 else {
-                    core.setFailed(`Could not get project from azure.yml: ${contents}`);
+                    core.setFailed(`Could not tenant id from azure.yml: ${contents}`);
+                }
+                const projectName = data.fidalgo.project.name;
+                if (projectName) {
+                    core.info(`Found project name in azure.yml file: ${projectName}`);
+                    core.setOutput('project_name', projectName);
+                }
+                else {
+                    core.setFailed(`Could not get project name from azure.yml: ${contents}`);
+                }
+                const projectGroup = data.fidalgo.project.group;
+                if (projectGroup) {
+                    core.info(`Found project group in azure.yml file: ${projectGroup}`);
+                    core.setOutput('project_group', projectGroup);
+                }
+                else {
+                    core.setFailed(`Could not get project group from azure.yml: ${contents}`);
+                }
+                const catalogItem = data.fidalgo.catalog_item;
+                if (catalogItem) {
+                    core.info(`Found catalog item in azure.yml file: ${catalogItem}`);
+                    core.setOutput('catalog_item', catalogItem);
+                }
+                else {
+                    core.setFailed(`Could not get catalog item from azure.yml: ${contents}`);
                 }
             }
             else {
-                core.setFailed(`Could not find azure.yml file with specified glob: ${azureyml}`);
+                core.setFailed(`Could not find azure.yml file with specified glob: ${pattern}`);
             }
             files.forEach(file => {
                 core.info(`Found file: ${file}`);

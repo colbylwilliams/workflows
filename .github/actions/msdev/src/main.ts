@@ -4,22 +4,27 @@ import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
 
 interface AzureYml {
-    fidalgo: AzureYmlFidalgo;
-
+    tenant: string;
+    fidalgo: Fidalgo;
 }
 
-interface AzureYmlFidalgo {
-    project: string;
+interface Fidalgo {
+    project: FidalgoProject;
     catalog_item: string;
+}
+
+interface FidalgoProject {
+    name: string;
+    group: string;
 }
 
 async function run(): Promise<void> {
     try {
-        const azureyml = core.getInput('azure');
+        const pattern = core.getInput('azure');
 
-        core.info(`azure input: ${azureyml}`);
+        core.info(`azure input: ${pattern}`);
 
-        const globber = await glob.create(azureyml);
+        const globber = await glob.create(pattern);
         const files = await globber.glob();
 
         const file = files.length > 0 ? files[0] : undefined;
@@ -28,21 +33,47 @@ async function run(): Promise<void> {
             core.info(`Found azure.yml file: ${file}`);
 
             const contents = await fs.readFile(file, 'utf8');
-
             const data = yaml.load(contents) as AzureYml;
 
-            const project = data.fidalgo.project;
+            const tenantId = data.fidalgo.project.name;
 
-            if (project) {
-                core.info(`Found project in azure.yml file: ${project}`);
-                core.setOutput('project', project);
+            if (tenantId) {
+                core.info(`Found tenant id in azure.yml file: ${tenantId}`);
+                core.setOutput('tenant', tenantId);
             } else {
-                core.setFailed(`Could not get project from azure.yml: ${contents}`);
+                core.setFailed(`Could not tenant id from azure.yml: ${contents}`);
+            }
+
+            const projectName = data.fidalgo.project.name;
+
+            if (projectName) {
+                core.info(`Found project name in azure.yml file: ${projectName}`);
+                core.setOutput('project_name', projectName);
+            } else {
+                core.setFailed(`Could not get project name from azure.yml: ${contents}`);
+            }
+
+            const projectGroup = data.fidalgo.project.group;
+
+            if (projectGroup) {
+                core.info(`Found project group in azure.yml file: ${projectGroup}`);
+                core.setOutput('project_group', projectGroup);
+            } else {
+                core.setFailed(`Could not get project group from azure.yml: ${contents}`);
+            }
+
+            const catalogItem = data.fidalgo.catalog_item;
+
+            if (catalogItem) {
+                core.info(`Found catalog item in azure.yml file: ${catalogItem}`);
+                core.setOutput('catalog_item', catalogItem);
+            } else {
+                core.setFailed(`Could not get catalog item from azure.yml: ${contents}`);
             }
 
 
         } else {
-            core.setFailed(`Could not find azure.yml file with specified glob: ${azureyml}`);
+            core.setFailed(`Could not find azure.yml file with specified glob: ${pattern}`);
         }
 
         files.forEach(file => {
