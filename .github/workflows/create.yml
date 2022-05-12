@@ -43,7 +43,7 @@ jobs:
 
   env_info_post:
     if: (github.event_name == 'pull_request' || github.event.ref_type == 'branch') && needs.env_info.outputs.exists == 'false'
-    name: Get Environment Post
+    name: Get New Environment
     uses: ./.github/workflows/env_info.yml
     secrets: inherit
     needs:
