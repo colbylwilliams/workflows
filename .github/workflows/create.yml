@@ -8,6 +8,12 @@ on:
 concurrency: ${{ github.event.number || github.ref_name }}
 
 jobs:
+  print_action:
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: echo "- **Sub**  ${{ github.event.action }}" >> $GITHUB_STEP_SUMMARY
+
   env_info:
     if: github.event_name == 'pull_request' || github.event.ref_type == 'branch'
     name: Get Environment
