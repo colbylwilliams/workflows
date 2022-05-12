@@ -48,6 +48,9 @@ jobs:
     needs: env_info
     environment:
       name: ${{ needs.env_info.outputs.type }}
+    permissions:
+      issues: write
+      pull-requests: write
 
     steps:
       - name: Add Link to Pull Request
@@ -55,7 +58,7 @@ jobs:
         with:
           script: |
             const tenantId = 'ec509c4c-6b8f-4558-a7b7-030ff99b57e0';
-            const resourceId = '/subscriptions/4f946562-8f9e-4e46-93fe-19dfd30b6b97/resourceGroups/Workflows-ci-branch-dev-490852161';
+            const resourceId = '/subscriptions/${{ needs.env_info.outputs.subscription }}/resourceGroups/${{ secrets.PROJECT_NAME }}-${{ needs.env_info.outputs.name }}';
 
             github.rest.issues.createComment({
               owner: context.repo.owner,
