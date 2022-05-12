@@ -9,6 +9,7 @@ concurrency: ${{ github.event.number || github.ref_name }}
 
 jobs:
   env_info:
+    if: github.event_name == 'pull_request' || github.event.ref_type == 'branch'
     name: Get Environment
     uses: ./.github/workflows/env_info.yml
     secrets: inherit
