@@ -40,3 +40,28 @@ jobs:
         if: ${{ needs.env_info.outputs.exists == 'false' }}
         run: |
           az fidalgo admin environment create -g ${{ secrets.PROJECT_RESOURCE_GROUP }} --project-name ${{ secrets.PROJECT_NAME }} -n ${{ needs.env_info.outputs.name }} --environment-type ${{ needs.env_info.outputs.type }} --catalog-item-name ${{ needs.env_info.outputs.catalog_item }}
+
+  add_url:
+    name: Add Link to Environment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    needs: env_info
+    environment:
+      name: ${{ needs.env_info.outputs.type }}
+
+    steps:
+      - name: Add Link to Pull Request
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const tenantId = 'ec509c4c-6b8f-4558-a7b7-030ff99b57e0';
+            const resourceId = '/subscriptions/4f946562-8f9e-4e46-93fe-19dfd30b6b97/resourceGroups/Workflows-ci-branch-dev-490852161';
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `The source in this Pull Request has been deployed to Azure for review
+
+                You can access the Environment resources [here](https://portal.azure.com/#@${tenantId}/resource${resourceId})`,
+            });

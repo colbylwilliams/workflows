@@ -19,11 +19,11 @@ on:
       exists:
         description: 'True if the environment exists otherwise False'
         value: ${{ jobs.env_details.outputs.exists }}
-      id:
-        description: 'The id of the environment resource'
-        value: ${{ jobs.env_details.outputs.id }}
+      subscription:
+        description: 'The subscription of the environment resource'
+        value: ${{ jobs.env_details.outputs.subscription }}
       group:
-        description: 'The id of the environment resource group'
+        description: 'The name of the environment resource group'
         value: ${{ jobs.env_details.outputs.group }}
       # tenant:
       #   description: 'The id of the tenant'
@@ -83,8 +83,8 @@ jobs:
     # Map the job outputs to step outputs
     outputs:
       exists: ${{ steps.get_env.outputs.exists }}
-      id: ${{ steps.get_env.outputs.id }}
       group: ${{ steps.get_env.outputs.group }}
+      subscription: ${{ steps.get_env.outputs.subscription }}
       # tenant: ${{ steps.get_tenant.outputs.tenant }}
 
     steps:
@@ -132,7 +132,11 @@ jobs:
               sys.exit('{}: {}'.format('Could not find Fidalgo environment', result.stderr if result.stderr else result.stdout if result.stdout else result))
 
           if exists:
-              print("::set-output name=id::{}".format(environment['id']))
-              print("::set-output name=group::{}".format(environment['resourceGroupId']))
+              rg_id = environment['resourceGroupId']
+              rg_sub = rg_id.split('/')[2]
+              rg_name = rg_id.split('/')[-1]
+
+              print("::set-output name=subscription::{}".format(rg_sub))
+              print("::set-output name=group::{}".format(rg_name))
 
           print("::set-output name=exists::{}".format(exists).lower())
