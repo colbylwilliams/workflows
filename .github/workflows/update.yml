@@ -40,6 +40,3 @@ jobs:
         if: ${{ needs.env_info.outputs.exists == 'false' }}
         run: |
           az fidalgo admin environment create -g ${{ secrets.PROJECT_RESOURCE_GROUP }} --project-name ${{ secrets.PROJECT_NAME }} -n ${{ needs.env_info.outputs.name }} --environment-type ${{ needs.env_info.outputs.type }} --catalog-item-name ${{ needs.env_info.outputs.catalog_item }}
-
-      - run: echo "- **Sub**  ${{ needs.env_info.outputs.subscription }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- **Sub**  ${{ needs.env_info.outputs.group }}" >> $GITHUB_STEP_SUMMARY
