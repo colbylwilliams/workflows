@@ -27,6 +27,28 @@ async function run(): Promise<void> {
 
         core.info(`azure input: ${pattern}`);
 
+        const context = github.context;
+
+        const part_ref = context.eventName === 'pull_request' ? 'pr' : 'branch';
+        const name_part = context.eventName === 'pull_request' ? context.issue.number : context.eventName === 'push' ? context.ref.split('/')[-1] : context.ref;
+        const suffix_part = context.payload.repository!['id'];
+
+        const env_name = `ci-${part_ref}-${name_part}-${suffix_part}`;
+
+        core.info(`Setting environment name: ${env_name}`);
+        core.setOutput('name', env_name);
+
+        let env_type = 'Dev';
+
+        if (context.eventName === 'push') {
+            env_type = context.payload.ref === 'refs/heads/main' ? 'Prod' : 'Dev';
+        } else if (context.eventName === 'pull_request') {
+            env_type = context.payload.pull_request?.base.ref == 'main' && 'Pre-Prod' || 'Test';
+        }
+
+        core.info(`Setting environment type: ${env_type}`);
+        core.setOutput('type', env_type);
+
         const globber = await glob.create(pattern);
         const files = await globber.glob();
 
@@ -48,7 +70,7 @@ async function run(): Promise<void> {
                 core.setFailed(`Could not tenant id from azure.yml: ${contents}`);
             }
 
-            const fidalgoExt = azure.fidalgo.project.name;
+            const fidalgoExt = azure.fidalgo.extension;
 
             if (fidalgoExt) {
                 core.info(`Found fidalgo extension in azure.yml file: ${fidalgoExt}`);
@@ -84,8 +106,8 @@ async function run(): Promise<void> {
                 core.setFailed(`Could not get catalog item from azure.yml: ${contents}`);
             }
 
-            const context = JSON.stringify(github.context, undefined, 2);
-            core.info(`Context: ${context}`);
+            // const context = JSON.stringify(github.context, undefined, 2);
+            // core.info(`Context: ${context}`);
             // core.info(`Payload: ${payload}`);
         } else {
             core.setFailed(`Could not find azure.yml file with specified glob: ${pattern}`);
