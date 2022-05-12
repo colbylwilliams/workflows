@@ -1,4 +1,4 @@
-name: Environment Info
+name: Get Environment
 
 on:
   workflow_call:
