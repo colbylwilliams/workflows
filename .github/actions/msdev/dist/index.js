@@ -46,28 +46,32 @@ const glob = __importStar(__nccwpck_require__(8090));
 const fs = __importStar(__nccwpck_require__(3292));
 const yaml = __importStar(__nccwpck_require__(1917));
 const DEVAULT_FIDALGO_EXTENSION = 'https://fidalgosetup.blob.core.windows.net/cli-extensions/fidalgo-0.3.2-py3-none-any.whl';
-function run() {
+function getNameAndType() {
     var _a;
+    const context = github.context;
+    const part_ref = context.eventName === 'pull_request' ? 'pr' : 'branch';
+    const name_part = context.eventName === 'pull_request' ? context.issue.number : context.eventName === 'push' ? context.ref.split('/').slice(-1)[0] : context.ref;
+    const suffix_part = context.payload.repository['id'];
+    const env_name = `ci-${part_ref}-${name_part}-${suffix_part}`;
+    core.info(`Setting environment name: ${env_name}`);
+    core.setOutput('name', env_name);
+    let env_type = 'Dev';
+    if (context.eventName === 'push') {
+        env_type = context.payload.ref === 'refs/heads/main' ? 'Prod' : 'Dev';
+    }
+    else if (context.eventName === 'pull_request') {
+        env_type = ((_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.ref) == 'main' && 'Pre-Prod' || 'Test';
+    }
+    core.info(`Setting environment type: ${env_type}`);
+    core.setOutput('type', env_type);
+    return { name: env_name, type: env_type };
+}
+function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const name_and_type = getNameAndType();
             const pattern = core.getInput('azure');
             core.info(`azure input: ${pattern}`);
-            const context = github.context;
-            const part_ref = context.eventName === 'pull_request' ? 'pr' : 'branch';
-            const name_part = context.eventName === 'pull_request' ? context.issue.number : context.eventName === 'push' ? context.ref.split('/').slice(-1)[0] : context.ref;
-            const suffix_part = context.payload.repository['id'];
-            const env_name = `ci-${part_ref}-${name_part}-${suffix_part}`;
-            core.info(`Setting environment name: ${env_name}`);
-            core.setOutput('name', env_name);
-            let env_type = 'Dev';
-            if (context.eventName === 'push') {
-                env_type = context.payload.ref === 'refs/heads/main' ? 'Prod' : 'Dev';
-            }
-            else if (context.eventName === 'pull_request') {
-                env_type = ((_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.ref) == 'main' && 'Pre-Prod' || 'Test';
-            }
-            core.info(`Setting environment type: ${env_type}`);
-            core.setOutput('type', env_type);
             const globber = yield glob.create(pattern);
             const files = yield globber.glob();
             const file = files.length > 0 ? files[0] : undefined;
@@ -127,15 +131,10 @@ function run() {
                 else {
                     core.setFailed(`Could not get catalog item from azure.yml: ${contents}`);
                 }
-                // const context = JSON.stringify(github.context, undefined, 2);
-                // core.info(`Context: ${context}`);
-                // core.info(`Payload: ${payload}`);
             }
             else {
                 core.setFailed(`Could not find azure.yml file with specified glob: ${pattern}`);
             }
-            // const account = await exec.getExecOutput('az', ['account', 'show', '--only-show-errors']);
-            // core.info(`az account show: ${account}`);
         }
         catch (error) {
             if (error instanceof Error)
