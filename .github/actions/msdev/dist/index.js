@@ -121,11 +121,14 @@ function run() {
             else {
                 core.setFailed(`Could not find azure.yml file with specified glob: ${pattern}`);
             }
-            const account = yield exec.getExecOutput('az', ['account', 'show', '--output', 'json']);
+            const account = yield exec.getExecOutput('az', ['account', 'show', '--only-show-errors']);
             core.info(`az account show: ${account}`);
-            yield exec.exec('az', ['config', 'set', 'extension.use_dynamic_install=yes_without_prompt']);
-            const tenants = yield exec.getExecOutput('az', ['account', 'tenant', 'list']);
-            core.info(`az account tenant list: ${tenants}`);
+            // set config to auto install extensions without prompt
+            yield exec.exec('az', ['config', 'set', 'extension.use_dynamic_install=yes_without_prompt', '--only-show-errors']);
+            const tenants_json = yield exec.getExecOutput('az', ['account', 'tenant', 'list', '--only-show-errors']);
+            core.info(`az account tenant list st: ${tenants_json}`);
+            const tenants = JSON.parse(tenants_json.stdout);
+            core.info(`Found tenant: ${tenants[0].id}`);
         }
         catch (error) {
             if (error instanceof Error)
