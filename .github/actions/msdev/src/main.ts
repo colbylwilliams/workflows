@@ -113,9 +113,13 @@ async function run(): Promise<void> {
             core.setFailed(`Could not find azure.yml file with specified glob: ${pattern}`);
         }
 
-        const account = exec.getExecOutput('az', ['account', 'show', '--output', 'json']);
-
+        const account = await exec.getExecOutput('az', ['account', 'show', '--output', 'json']);
         core.info(`az account show: ${account}`);
+
+        await exec.exec('az', ['config', 'set', 'extension.use_dynamic_install=yes_without_prompt']);
+
+        const tenants = await exec.getExecOutput('az', ['account', 'tenant', 'list']);
+        core.info(`az account tenant list: ${tenants}`);
 
     } catch (error) {
         if (error instanceof Error) core.setFailed(error.message);
