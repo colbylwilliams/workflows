@@ -45,6 +45,7 @@ const github = __importStar(__nccwpck_require__(5438));
 const glob = __importStar(__nccwpck_require__(8090));
 const fs = __importStar(__nccwpck_require__(3292));
 const yaml = __importStar(__nccwpck_require__(1917));
+const DEVAULT_FIDALGO_EXTENSION = 'https://fidalgosetup.blob.core.windows.net/cli-extensions/fidalgo-0.3.2-py3-none-any.whl';
 function run() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -74,21 +75,33 @@ function run() {
                 core.info(`Found azure.yml file: ${file}`);
                 const contents = yield fs.readFile(file, 'utf8');
                 const azure = yaml.load(contents);
-                const tenantId = azure.tenant;
-                if (tenantId) {
-                    core.info(`Found tenant id in azure.yml file: ${tenantId}`);
-                    core.setOutput('tenant', tenantId);
+                // allow for override of tenant
+                if (azure.tenant) {
+                    core.info(`Found tenant id in azure.yml file: ${azure.tenant}`);
+                    core.setOutput('tenant', azure.tenant);
                 }
                 else {
-                    core.setFailed(`Could not tenant id from azure.yml: ${contents}`);
+                    // attempt to get tenant from azure using service principal
+                    core.info(`No tenant id found in azure.yml file, attempting to get from Azure`);
+                    // set config to auto install extensions without prompt
+                    yield exec.exec('az', ['config', 'set', 'extension.use_dynamic_install=yes_without_prompt', '--only-show-errors']);
+                    const tenantsJson = yield exec.getExecOutput('az', ['account', 'tenant', 'list', '--only-show-errors']);
+                    core.info(`az account tenant list: ${tenantsJson.stdout}`);
+                    const tenants = JSON.parse(tenantsJson.stdout);
+                    // TODO: handle multiple tenants
+                    core.info(`Found tenant with id: ${tenants[0].tenantId}`);
+                    core.setOutput('tenant', tenants[0].tenantId);
+                    // core.setFailed(`Could not tenant id from azure.yml: ${contents}`);
                 }
-                const fidalgoExt = azure.fidalgo.extension;
-                if (fidalgoExt) {
-                    core.info(`Found fidalgo extension in azure.yml file: ${fidalgoExt}`);
-                    core.setOutput('fidalgo', fidalgoExt);
+                // allow for override of extension
+                if (azure.fidalgo.extension) {
+                    core.info(`Found fidalgo extension in azure.yml file: ${azure.fidalgo.extension}`);
+                    core.setOutput('fidalgo', azure.fidalgo.extension);
                 }
                 else {
-                    core.setFailed(`Could not get fidalgo extension from azure.yml: ${contents}`);
+                    // use default extension
+                    core.info(`No fidalgo extension found in azure.yml file, using default: ${DEVAULT_FIDALGO_EXTENSION}`);
+                    core.setOutput('fidalgo', DEVAULT_FIDALGO_EXTENSION);
                 }
                 const projectName = azure.fidalgo.project.name;
                 if (projectName) {
@@ -121,14 +134,8 @@ function run() {
             else {
                 core.setFailed(`Could not find azure.yml file with specified glob: ${pattern}`);
             }
-            const account = yield exec.getExecOutput('az', ['account', 'show', '--only-show-errors']);
-            core.info(`az account show: ${account}`);
-            // set config to auto install extensions without prompt
-            yield exec.exec('az', ['config', 'set', 'extension.use_dynamic_install=yes_without_prompt', '--only-show-errors']);
-            const tenants_json = yield exec.getExecOutput('az', ['account', 'tenant', 'list', '--only-show-errors']);
-            core.info(`az account tenant list st: ${tenants_json}`);
-            const tenants = JSON.parse(tenants_json.stdout);
-            core.info(`Found tenant: ${tenants[0].id}`);
+            // const account = await exec.getExecOutput('az', ['account', 'show', '--only-show-errors']);
+            // core.info(`az account show: ${account}`);
         }
         catch (error) {
             if (error instanceof Error)
