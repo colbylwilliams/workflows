@@ -1,7 +1,7 @@
 name: Update Environment
 
 on:
-  push:
+  # push:
   pull_request:
     types: [synchronize]
 
