@@ -70,8 +70,8 @@ async function run(): Promise<void> {
                 const tenantId = await exec.getExecOutput('az', ['account', 'show', '--query', 'tenantId', '-o', 'tsv']);
 
                 if (tenantId.stdout) {
-                    core.info(`Found tenant with id: ${tenantId.stdout}`);
-                    core.setOutput('tenant', tenantId.stdout);
+                    core.info(`Found tenant with id: ${tenantId.stdout.trim()}`);
+                    core.setOutput('tenant', tenantId.stdout.trim());
                 } else {
                     core.setFailed(`Failed to get tenant id from Azure: ${tenantId.stderr}`);
                 }
@@ -141,7 +141,7 @@ async function run(): Promise<void> {
 
                 if (createIfNotExists) {
                     core.info('Creating environment');
-                    const create = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'create', '--only-show-errors', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', env_name, '--environment-type', env_name, '--environment-type', project.fidalgo.catalog_item], { ignoreReturnCode: true });
+                    const create = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'create', '--only-show-errors', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', env_name, '--environment-type', env_type, '--catalog-item-name', project.fidalgo.catalog_item], { ignoreReturnCode: true });
                     if (create.exitCode === 0) {
                         exists = true;
                         created = true;

@@ -30,6 +30,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - id: msdev
+        name: Get Environment
         uses: ./.github/actions/msdev
         with:
           name: ${{ needs.config.outputs.name }}
