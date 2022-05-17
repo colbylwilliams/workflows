@@ -37,5 +37,5 @@ jobs:
       - run: echo "- **project_group**  ${{ steps.msdev.outputs.project_group }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- **catalog_item**  ${{ steps.msdev.outputs.catalog_item }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- **exists**  ${{ steps.msdev.outputs.exists }}" >> $GITHUB_STEP_SUMMARY
-      - run: echo "- **subscription**  ${{ steps.msdev.outputs.subscription }}" >> $GITHUB_STEP_SUMMARY
+      - run: echo "- **created**  ${{ steps.msdev.outputs.created }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- **group**  ${{ steps.msdev.outputs.group }}" >> $GITHUB_STEP_SUMMARY
