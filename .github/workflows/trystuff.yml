@@ -3,7 +3,6 @@ name: Try Stuff
 on:
   push:
 
-permissions: write-all
 jobs:
   init:
     name: Ensure GitHub Environments
@@ -27,10 +26,6 @@ jobs:
               const name = names[i];
               const exists = environments.some(e => e.name === name);
               if (!exists) {
-                const environment_result = await github.rest.repos.createOrUpdateEnvironment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  environment_name: name
-                });
+                core.setFailed(`A GitHub Environment named ${name} does not exist.  Create the environment and add a secret named: AZURE_CREDENTIALS`);
               }
             }
