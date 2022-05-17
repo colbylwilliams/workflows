@@ -20,9 +20,9 @@ jobs:
     needs: config
     environment:
       name: ${{ needs.config.outputs.type }}
-    outputs:
-      tenant: ${{ steps.msdev.outputs.tenant }}
-      group: ${{ steps.msdev.outputs.group }}
+    permissions:
+      issues: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v3
@@ -40,23 +40,13 @@ jobs:
           type: ${{ needs.config.outputs.type }}
           createIfNotExists: true
 
-  add_link:
-    name: Add Link to Pull Request
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'opened'
-    needs: create_env
-    permissions:
-      issues: write
-      pull-requests: write
-
-    steps:
       - name: Add Link to Pull Request
         if: github.event_name == 'pull_request' && github.event.action == 'opened'
         uses: actions/github-script@v6
         with:
           script: |
-            const tenantId = ${{ needs.create_env.outputs.tenant }};
-            const resourceId = ${{ needs.create_env.outputs.group }};
+            const tenantId = '${{ steps.msdev.outputs.tenant }}';
+            const resourceId = '${{ steps.msdev.outputs.group }}';
 
             github.rest.issues.createComment({
               owner: context.repo.owner,
