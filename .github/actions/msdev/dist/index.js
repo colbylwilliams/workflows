@@ -91,8 +91,8 @@ function run() {
                     core.info('No tenant id found in project.yml file, attempting to get from Azure');
                     const tenantId = yield exec.getExecOutput('az', ['account', 'show', '--query', 'tenantId', '-o', 'tsv']);
                     if (tenantId.stdout) {
-                        core.info(`Found tenant with id: ${tenantId.stdout}`);
-                        core.setOutput('tenant', tenantId.stdout);
+                        core.info(`Found tenant with id: ${tenantId.stdout.trim()}`);
+                        core.setOutput('tenant', tenantId.stdout.trim());
                     }
                     else {
                         core.setFailed(`Failed to get tenant id from Azure: ${tenantId.stderr}`);
