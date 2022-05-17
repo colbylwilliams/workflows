@@ -1,39 +1,11 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import * as github from '@actions/github';
 import * as glob from '@actions/glob';
 import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
 import { FidalgoEnvironment, Project } from './types';
 
 const DEFAULT_FIDALGO_EXTENSION = 'https://fidalgosetup.blob.core.windows.net/cli-extensions/fidalgo-0.3.2-py3-none-any.whl';
-
-function getNameAndType(): { name: string, type: string; } {
-
-    const context = github.context;
-
-    const part_ref = context.eventName === 'pull_request' ? 'pr' : 'branch';
-    const name_part = context.eventName === 'pull_request' ? context.issue.number : context.eventName === 'push' ? context.ref.split('/').slice(-1)[0] : context.ref;
-    const suffix_part = context.payload.repository!['id'];
-
-    const env_name = `ci-${part_ref}-${name_part}-${suffix_part}`;
-
-    core.info(`Setting environment name: ${env_name}`);
-    core.setOutput('name', env_name);
-
-    let env_type = 'Dev';
-
-    if (context.eventName === 'push') {
-        env_type = context.payload.ref === 'refs/heads/main' ? 'Prod' : 'Dev';
-    } else if (context.eventName === 'pull_request') {
-        env_type = context.payload.pull_request?.base.ref == 'main' && 'Pre-Prod' || 'Test';
-    }
-
-    core.info(`Setting environment type: ${env_type}`);
-    core.setOutput('type', env_type);
-
-    return { name: env_name, type: env_type };
-}
 
 async function run(): Promise<void> {
     try {
