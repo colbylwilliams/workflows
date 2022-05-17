@@ -11,7 +11,7 @@ jobs:
   config:
     if: github.event_name == 'pull_request' || (contains(github.event.ref, 'refs/heads') && !github.event.created)
     name: Get Environment
-    uses: ./.github/workflows/env_config.yml
+    uses: colbylwilliams/msdev/.github/workflows/env_config.yml@main
 
   update_env:
     if: github.event_name == 'pull_request' || (contains(github.event.ref, 'refs/heads') && !github.event.created)
@@ -31,7 +31,7 @@ jobs:
 
       - id: msdev
         name: Ensure Environment
-        uses: ./.github/actions/msdev
+        uses: colbylwilliams/msdev@main
         with:
           name: ${{ needs.config.outputs.name }}
           type: ${{ needs.config.outputs.type }}
