@@ -45,7 +45,7 @@ const github = __importStar(__nccwpck_require__(5438));
 const glob = __importStar(__nccwpck_require__(8090));
 const fs = __importStar(__nccwpck_require__(3292));
 const yaml = __importStar(__nccwpck_require__(1917));
-const DEVAULT_FIDALGO_EXTENSION = 'https://fidalgosetup.blob.core.windows.net/cli-extensions/fidalgo-0.3.2-py3-none-any.whl';
+const DEFAULT_FIDALGO_EXTENSION = 'https://fidalgosetup.blob.core.windows.net/cli-extensions/fidalgo-0.3.2-py3-none-any.whl';
 function getNameAndType() {
     var _a;
     const context = github.context;
@@ -76,6 +76,7 @@ function run() {
             const files = yield globber.glob();
             const file = files.length > 0 ? files[0] : undefined;
             if (file) {
+                let fidalgoExt = DEFAULT_FIDALGO_EXTENSION;
                 core.info(`Found project.yml file: ${file}`);
                 const contents = yield fs.readFile(file, 'utf8');
                 const project = yaml.load(contents);
@@ -86,7 +87,7 @@ function run() {
                 }
                 else {
                     // attempt to get tenant from azure using service principal
-                    core.info(`No tenant id found in project.yml file, attempting to get from Azure`);
+                    core.info('No tenant id found in project.yml file, attempting to get from Azure');
                     const tenantId = yield exec.getExecOutput('az', ['account', 'show', '--query', 'tenantId', '-o', 'tsv']);
                     if (tenantId.stdout) {
                         core.info(`Found tenant with id: ${tenantId.stdout}`);
@@ -95,28 +96,19 @@ function run() {
                     else {
                         core.setFailed(`Failed to get tenant id from Azure: ${tenantId.stderr}`);
                     }
-                    // set config to auto install extensions without prompt
-                    // await exec.exec('az', ['config', 'set', 'extension.use_dynamic_install=yes_without_prompt', '--only-show-errors']);
-                    // const tenantsJson = await exec.getExecOutput('az', ['account', 'tenant', 'list', '--only-show-errors']);
-                    // core.info(`az account tenant list: ${tenantsJson.stdout}`);
-                    // const tenants = JSON.parse(tenantsJson.stdout) as [{ id: string, tenantId: string; }];
-                    // TODO: handle multiple tenants
-                    // core.info(`Found tenant with id: ${tenants[0].tenantId}`);
-                    // core.setOutput('tenant', tenants[0].tenantId);
-                    // core.setFailed(`Could not tenant id from project.yml: ${contents}`);
                 }
                 if (project.fidalgo) {
                     core.info('Found fidalgo section in project.yml file');
                     // allow for override of extension
                     if (project.fidalgo.extension) {
-                        core.info(`Found fidalgo extension in project.yml file: ${project.fidalgo.extension}`);
-                        core.setOutput('fidalgo', project.fidalgo.extension);
+                        fidalgoExt = project.fidalgo.extension;
+                        core.info(`Found fidalgo extension in project.yml file: ${fidalgoExt}`);
                     }
                     else {
                         // use default extension
-                        core.info(`No fidalgo extension found in project.yml file, using default: ${DEVAULT_FIDALGO_EXTENSION}`);
-                        core.setOutput('fidalgo', DEVAULT_FIDALGO_EXTENSION);
+                        core.info(`No fidalgo extension found in project.yml file, using default: ${fidalgoExt}`);
                     }
+                    core.setOutput('fidalgo', fidalgoExt);
                     if (project.fidalgo.project) {
                         core.info('Found fidalgo project section in project.yml file');
                         if (project.fidalgo.project.name) {
@@ -147,6 +139,16 @@ function run() {
                 }
                 else {
                     core.setFailed(`No fidalgo section found in project.yml file: ${contents}`);
+                }
+                yield exec.exec('az', ['extension', 'add', '-y', '-s', fidalgoExt]);
+                const environment = yield exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', name_and_type.name]);
+                if (environment.stdout) {
+                    core.setOutput('exists', 'true');
+                    core.info(`Found existing environment: code: ${environment.exitCode} : ${environment.stdout}`);
+                }
+                else {
+                    core.setOutput('exists', 'false');
+                    core.info(`No existing environment found: code: ${environment.exitCode} error: ${environment.stderr}`);
                 }
             }
             else {
