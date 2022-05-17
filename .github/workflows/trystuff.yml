@@ -1,0 +1,26 @@
+name: Try Stuff
+
+on:
+  push:
+
+jobs:
+  init:
+    name: Ensure GitHub Environments
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ensure GitHub Environments
+        uses: actions/github-script@v6
+        with:
+          script: |
+
+            const environment_result = github.rest.repos.getAllEnvironments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            console.log(JSON.stringify(environment_result))
+
+            const environment =  environment_result.data;
+
+            console.log(JSON.stringify(environment))
