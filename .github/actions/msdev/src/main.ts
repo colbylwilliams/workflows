@@ -129,14 +129,15 @@ async function run(): Promise<void> {
             let exists = false;
             let created = false;
 
+            const createIfNotExists = core.getBooleanInput('createIfNotExists');
+            core.info(`createIfNotExists: ${createIfNotExists}`);
+
             if (environmentShow.exitCode === 0) {
                 exists = true;
                 core.info('Found existing environment');
                 const environment = JSON.parse(environmentShow.stdout) as FidalgoEnvironment;
                 core.setOutput('group', environment.resourceGroupId);
             } else {
-                const createIfNotExists = core.getBooleanInput('createIfNotExists');
-                core.info(`createIfNotExists: ${createIfNotExists}`);
 
                 if (createIfNotExists) {
                     core.info('Creating environment');

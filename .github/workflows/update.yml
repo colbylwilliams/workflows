@@ -41,6 +41,6 @@ jobs:
       #   run: az extension add -s ${{ needs.config.outputs.fidalgo }} -y
 
       - name: Update Environment
-        if: ${{ needs.msdev.outputs.exists == 'true' && needs.msdev.outputs.created == 'false' }}
+        if: ${{ steps.msdev.outputs.exists == 'true' && steps.msdev.outputs.created == 'false' }}
         run: |
-          az fidalgo admin environment deploy -g ${{ needs.msdev.outputs.project_group }} --project-name ${{ needs.msdev.outputs.project_name }} -n ${{ needs.config.outputs.name }}
+          az fidalgo admin environment deploy -g ${{ steps.msdev.outputs.project_group }} --project-name ${{ steps.msdev.outputs.project_name }} -n ${{ needs.config.outputs.name }}
