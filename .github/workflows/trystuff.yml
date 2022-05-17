@@ -7,8 +7,7 @@ jobs:
   init:
     name: Ensure GitHub Environments
     runs-on: ubuntu-latest
-    permissions:
-      deployments: write
+    permissions: read-all|write-all
 
     steps:
       - name: Ensure GitHub Environments
