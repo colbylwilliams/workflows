@@ -122,7 +122,8 @@ async function run(): Promise<void> {
 
             await exec.exec('az', ['extension', 'add', '-y', '-s', fidalgoExt]);
 
-            const environment = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', name_and_type.name]);
+            // const environment = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', name_and_type.name]);
+            const environment = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', 'foo']);
 
             if (environment.stdout) {
                 core.setOutput('exists', 'true');
