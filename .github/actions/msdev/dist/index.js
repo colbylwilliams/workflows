@@ -146,8 +146,6 @@ function run() {
                 // const environment = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', 'foo'], { ignoreReturnCode: true });
                 let exists = false;
                 let created = false;
-                const createIfNotExists = core.getBooleanInput('createIfNotExists');
-                core.info(`createIfNotExists: ${createIfNotExists}`);
                 if (environmentShow.exitCode === 0) {
                     exists = true;
                     core.info('Found existing environment');
@@ -155,6 +153,8 @@ function run() {
                     core.setOutput('group', environment.resourceGroupId);
                 }
                 else {
+                    const createIfNotExists = core.getBooleanInput('createIfNotExists');
+                    core.info(`createIfNotExists: ${createIfNotExists}`);
                     if (createIfNotExists) {
                         core.info('Creating environment');
                         const create = yield exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'create', '--only-show-errors', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', env_name, '--environment-type', env_name, '--environment-type', project.fidalgo.catalog_item], { ignoreReturnCode: true });

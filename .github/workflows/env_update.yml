@@ -20,7 +20,6 @@ jobs:
     needs: config
     environment:
       name: ${{ needs.config.outputs.type }}
-      # url: '/subscriptions/${{ needs.config.outputs.subscription }}/resourceGroups/${{ secrets.PROJECT_NAME }}-${{ needs.config.outputs.name }}'
 
     steps:
       - uses: actions/checkout@v3
@@ -36,9 +35,6 @@ jobs:
           name: ${{ needs.config.outputs.name }}
           type: ${{ needs.config.outputs.type }}
           createIfNotExists: true
-
-      # - name: Install Fidalgo CLI Extension
-      #   run: az extension add -s ${{ needs.config.outputs.fidalgo }} -y
 
       - name: Update Environment
         if: ${{ steps.msdev.outputs.exists == 'true' && steps.msdev.outputs.created == 'false' }}
