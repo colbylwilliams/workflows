@@ -64,16 +64,26 @@ async function run(): Promise<void> {
                 // attempt to get tenant from azure using service principal
                 core.info(`No tenant id found in project.yml file, attempting to get from Azure`);
 
+                const tenantId = await exec.getExecOutput('az', ['account', 'show', '--query', 'tenantId', '-o', 'tsv']);
+
+                if (tenantId.stdout) {
+                    core.info(`Found tenant with id: ${tenantId.stdout}`);
+                    core.setOutput('tenant', tenantId.stdout);
+                } else {
+                    core.setFailed(`Failed to get tenant id from Azure: ${tenantId.stderr}`);
+                }
+
+
                 // set config to auto install extensions without prompt
-                await exec.exec('az', ['config', 'set', 'extension.use_dynamic_install=yes_without_prompt', '--only-show-errors']);
+                // await exec.exec('az', ['config', 'set', 'extension.use_dynamic_install=yes_without_prompt', '--only-show-errors']);
 
-                const tenantsJson = await exec.getExecOutput('az', ['account', 'tenant', 'list', '--only-show-errors']);
-                core.info(`az account tenant list: ${tenantsJson.stdout}`);
+                // const tenantsJson = await exec.getExecOutput('az', ['account', 'tenant', 'list', '--only-show-errors']);
+                // core.info(`az account tenant list: ${tenantsJson.stdout}`);
 
-                const tenants = JSON.parse(tenantsJson.stdout) as [{ id: string, tenantId: string; }];
+                // const tenants = JSON.parse(tenantsJson.stdout) as [{ id: string, tenantId: string; }];
                 // TODO: handle multiple tenants
-                core.info(`Found tenant with id: ${tenants[0].tenantId}`);
-                core.setOutput('tenant', tenants[0].tenantId);
+                // core.info(`Found tenant with id: ${tenants[0].tenantId}`);
+                // core.setOutput('tenant', tenants[0].tenantId);
 
                 // core.setFailed(`Could not tenant id from project.yml: ${contents}`);
             }
