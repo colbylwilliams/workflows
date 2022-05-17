@@ -4,7 +4,7 @@ import * as github from '@actions/github';
 import * as glob from '@actions/glob';
 import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
-import { Project } from './types';
+import { FidalgoEnvironment, Project } from './types';
 
 const DEFAULT_FIDALGO_EXTENSION = 'https://fidalgosetup.blob.core.windows.net/cli-extensions/fidalgo-0.3.2-py3-none-any.whl';
 
@@ -122,15 +122,17 @@ async function run(): Promise<void> {
 
             await exec.exec('az', ['extension', 'add', '-y', '-s', fidalgoExt]);
 
-            // const environment = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', name_and_type.name]);
-            const environment = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', 'foo'], { ignoreReturnCode: true });
+            const environmentShow = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', name_and_type.name], { ignoreReturnCode: true });
+            // const environment = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', 'foo'], { ignoreReturnCode: true });
 
-            if (environment.stdout) {
+            if (environmentShow.exitCode === 0) {
                 core.setOutput('exists', 'true');
-                core.info(`Found existing environment: code: ${environment.exitCode} : ${environment.stdout}`);
+                core.info(`Found existing environment: ${environmentShow.stdout}`);
+                const environment = JSON.parse(environmentShow.stdout) as FidalgoEnvironment;
+                core.setOutput('group', environment.resourceGroupId);
             } else {
                 core.setOutput('exists', 'false');
-                core.info(`No existing environment found: code: ${environment.exitCode} error: ${environment.stderr}`);
+                core.info(`No existing environment found: code: ${environmentShow.exitCode}`);
             }
 
         } else {

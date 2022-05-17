@@ -141,15 +141,17 @@ function run() {
                     core.setFailed(`No fidalgo section found in project.yml file: ${contents}`);
                 }
                 yield exec.exec('az', ['extension', 'add', '-y', '-s', fidalgoExt]);
-                // const environment = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', name_and_type.name]);
-                const environment = yield exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', 'foo'], { ignoreReturnCode: true });
-                if (environment.stdout) {
+                const environmentShow = yield exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', name_and_type.name], { ignoreReturnCode: true });
+                // const environment = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', 'foo'], { ignoreReturnCode: true });
+                if (environmentShow.exitCode === 0) {
                     core.setOutput('exists', 'true');
-                    core.info(`Found existing environment: code: ${environment.exitCode} : ${environment.stdout}`);
+                    core.info(`Found existing environment: ${environmentShow.stdout}`);
+                    const environment = JSON.parse(environmentShow.stdout);
+                    core.setOutput('group', environment.resourceGroupId);
                 }
                 else {
                     core.setOutput('exists', 'false');
-                    core.info(`No existing environment found: code: ${environment.exitCode} error: ${environment.stderr}`);
+                    core.info(`No existing environment found: code: ${environmentShow.exitCode}`);
                 }
             }
             else {
