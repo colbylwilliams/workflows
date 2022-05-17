@@ -142,7 +142,7 @@ function run() {
                 }
                 yield exec.exec('az', ['extension', 'add', '-y', '-s', fidalgoExt]);
                 // const environment = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', name_and_type.name]);
-                const environment = yield exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', 'foo']);
+                const environment = yield exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', 'foo'], { ignoreReturnCode: true });
                 if (environment.stdout) {
                     core.setOutput('exists', 'true');
                     core.info(`Found existing environment: code: ${environment.exitCode} : ${environment.stdout}`);
