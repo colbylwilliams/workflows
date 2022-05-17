@@ -13,14 +13,25 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-
-            const environment_result = await github.rest.repos.getAllEnvironments({
+            const environments_result = await github.rest.repos.getAllEnvironments({
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
 
-            console.log(JSON.stringify(environment_result))
+            # console.log(JSON.stringify(environment_result))
 
-            const environment =  environment_result.data;
+            const environments = environments_result.data.environments;
 
-            console.log(JSON.stringify(environment))
+            const names = ['Dev', 'Test', 'Pre-Prod', 'Prod', 'Boom'];
+
+            for (let i = 0; i < names.length; i++) {
+              const name = names[i];
+              const exists = environments.some(e => e.name === name);
+              if (!exists) {
+                const environment_result = await github.rest.repos.createOrUpdateEnvironment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  environment_name: name
+                });
+              }
+            }
