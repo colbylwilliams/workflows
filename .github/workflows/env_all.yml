@@ -1,6 +1,7 @@
 name: Fidalgo Environment
 
 on:
+  push:
   create:
   delete:
   pull_request:
