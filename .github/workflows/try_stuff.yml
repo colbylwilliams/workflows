@@ -5,9 +5,15 @@ on:
   workflow_dispatch:
 
 jobs:
+  config:
+    # if: github.event_name == 'pull_request' || (contains(github.event.ref, 'refs/heads') && !github.event.created)
+    name: Get Environment
+    uses: ./.github/workflows/env_config.yml
+
   parse_yml:
     runs-on: ubuntu-latest
-    environment: Dev
+    needs: config
+    environment: ${{ needs.config.outputs.type }}
 
     steps:
       - uses: actions/checkout@v3
@@ -19,6 +25,9 @@ jobs:
 
       - id: msdev
         uses: ./.github/actions/msdev
+        with:
+          name: ${{ needs.config.outputs.name }}
+          type: ${{ needs.config.outputs.type }}
 
       - run: echo "- **name**  ${{ steps.msdev.outputs.name }}" >> $GITHUB_STEP_SUMMARY
       - run: echo "- **type**  ${{ steps.msdev.outputs.type }}" >> $GITHUB_STEP_SUMMARY

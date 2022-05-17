@@ -2,10 +2,20 @@ name: 'msdev action'
 description: 'github action for msdev'
 author: 'colbylwilliams'
 inputs:
+  name:
+    required: true
+    description: 'environment name'
+  type:
+    required: true
+    description: 'environment type'
   project:
     required: false
     description: 'path to project.yml file'
     default: 'project.yml'
+  createIfNotExists:
+    required: false
+    description: 'create the fidalgo environment if it does not exist'
+    default: 'false'
 outputs:
   name:
     description: 'The name of the environment'
@@ -23,6 +33,8 @@ outputs:
     description: 'The name of the catalog item'
   exists:
     description: 'True if the environment exists otherwise False'
+  created:
+    description: 'True if the environment was created by the action otherwise False'
   subscription:
     description: 'The subscription of the environment resource'
   group:
