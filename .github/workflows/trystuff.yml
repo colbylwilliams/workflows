@@ -14,7 +14,7 @@ jobs:
         with:
           script: |
 
-            const environment_result = github.rest.repos.getAllEnvironments({
+            const environment_result = await github.rest.repos.getAllEnvironments({
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
