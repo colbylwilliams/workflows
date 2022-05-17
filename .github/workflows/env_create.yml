@@ -11,7 +11,7 @@ jobs:
   config:
     if: github.event_name == 'pull_request' || github.event.ref_type == 'branch'
     name: Get Environment
-    uses: ./.github/workflows/env_config.yml
+    uses: colbylwilliams/msdev/.github/workflows/env_config.yml@main
 
   create_env:
     name: Create Environment
@@ -34,7 +34,7 @@ jobs:
 
       - id: msdev
         name: Create Environment
-        uses: ./.github/actions/msdev
+        uses: colbylwilliams/msdev@main
         with:
           name: ${{ needs.config.outputs.name }}
           type: ${{ needs.config.outputs.type }}
