@@ -144,35 +144,37 @@ function run() {
                 yield exec.exec('az', ['extension', 'add', '--only-show-errors', '-y', '-s', fidalgoExt]);
                 const environmentShow = yield exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '--only-show-errors', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', env_name], { ignoreReturnCode: true });
                 // const environment = await exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'show', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', 'foo'], { ignoreReturnCode: true });
+                let exists = false;
+                let created = false;
                 if (environmentShow.exitCode === 0) {
-                    core.setOutput('exists', 'true');
+                    exists = true;
                     core.info('Found existing environment');
                     const environment = JSON.parse(environmentShow.stdout);
                     core.setOutput('group', environment.resourceGroupId);
                 }
                 else {
                     const createIfNotExists = core.getBooleanInput('createIfNotExists');
+                    core.info(`createIfNotExists: ${createIfNotExists}`);
                     if (createIfNotExists) {
                         core.info('Creating environment');
                         const create = yield exec.getExecOutput('az', ['fidalgo', 'admin', 'environment', 'create', '--only-show-errors', '-g', project.fidalgo.project.group, '--project-name', project.fidalgo.project.name, '-n', env_name, '--environment-type', env_name, '--environment-type', project.fidalgo.catalog_item], { ignoreReturnCode: true });
                         if (create.exitCode === 0) {
+                            exists = true;
+                            created = true;
                             core.info('Created environment');
                             const environment = JSON.parse(create.stdout);
                             core.setOutput('group', environment.resourceGroupId);
-                            core.setOutput('created', 'true');
                         }
                         else {
-                            core.setOutput('exists', 'false');
-                            core.setOutput('created', 'false');
                             core.setFailed(`Failed to create environment: ${create.stderr}`);
                         }
                     }
                     else {
-                        core.setOutput('exists', 'false');
-                        core.setOutput('created', 'false');
                         core.info(`No existing environment found: code: ${environmentShow.exitCode}`);
                     }
                 }
+                core.setOutput('exists', exists);
+                core.setOutput('created', created);
             }
             else {
                 core.setFailed(`Could not find project.yml file with specified glob: ${pattern}`);
