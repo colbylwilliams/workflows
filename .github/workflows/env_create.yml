@@ -51,7 +51,6 @@ jobs:
 
     steps:
       - name: Add Link to Pull Request
-        if: github.event_name == 'pull_request' && github.event.action == 'opened'
         uses: actions/github-script@v6
         with:
           script: |
