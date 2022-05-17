@@ -18,8 +18,6 @@ jobs:
               repo: context.repo.repo,
             });
 
-            # console.log(JSON.stringify(environment_result))
-
             const environments = environments_result.data.environments;
 
             const names = ['Dev', 'Test', 'Pre-Prod', 'Prod', 'Boom'];
