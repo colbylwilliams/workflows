@@ -23,6 +23,8 @@ jobs:
       # url: '/subscriptions/${{ needs.config.outputs.subscription }}/resourceGroups/${{ secrets.PROJECT_NAME }}-${{ needs.config.outputs.name }}'
 
     steps:
+      - uses: actions/checkout@v3
+
       - name: Login to Azure CLI
         uses: azure/login@v1
         with:
