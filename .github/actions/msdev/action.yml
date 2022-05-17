@@ -2,10 +2,10 @@ name: 'msdev action'
 description: 'github action for msdev'
 author: 'colbylwilliams'
 inputs:
-  azure:
+  project:
     required: false
-    description: 'path to azure.yml file'
-    default: 'azure.yml'
+    description: 'path to project.yml file'
+    default: 'project.yml'
 outputs:
   name:
     description: 'The name of the environment'

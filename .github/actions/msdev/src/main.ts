@@ -4,24 +4,9 @@ import * as github from '@actions/github';
 import * as glob from '@actions/glob';
 import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
+import { Project } from './types';
 
 const DEVAULT_FIDALGO_EXTENSION = 'https://fidalgosetup.blob.core.windows.net/cli-extensions/fidalgo-0.3.2-py3-none-any.whl';
-
-interface AzureYml {
-    tenant?: string;
-    fidalgo: Fidalgo;
-}
-
-interface Fidalgo {
-    extension?: string;
-    project: FidalgoProject;
-    catalog_item: string;
-}
-
-interface FidalgoProject {
-    name: string;
-    group: string;
-}
 
 function getNameAndType(): { name: string, type: string; } {
 
@@ -55,9 +40,9 @@ async function run(): Promise<void> {
 
         const name_and_type = getNameAndType();
 
-        const pattern = core.getInput('azure');
+        const pattern = core.getInput('project');
 
-        core.info(`azure input: ${pattern}`);
+        core.info(`project input: ${pattern}`);
 
         const globber = await glob.create(pattern);
         const files = await globber.glob();
@@ -66,18 +51,18 @@ async function run(): Promise<void> {
 
         if (file) {
 
-            core.info(`Found azure.yml file: ${file}`);
+            core.info(`Found project.yml file: ${file}`);
 
             const contents = await fs.readFile(file, 'utf8');
-            const azure = yaml.load(contents) as AzureYml;
+            const project = yaml.load(contents) as Project;
 
             // allow for override of tenant
-            if (azure.tenant) {
-                core.info(`Found tenant id in azure.yml file: ${azure.tenant}`);
-                core.setOutput('tenant', azure.tenant);
+            if (project.tenant) {
+                core.info(`Found tenant id in project.yml file: ${project.tenant}`);
+                core.setOutput('tenant', project.tenant);
             } else {
                 // attempt to get tenant from azure using service principal
-                core.info(`No tenant id found in azure.yml file, attempting to get from Azure`);
+                core.info(`No tenant id found in project.yml file, attempting to get from Azure`);
 
                 // set config to auto install extensions without prompt
                 await exec.exec('az', ['config', 'set', 'extension.use_dynamic_install=yes_without_prompt', '--only-show-errors']);
@@ -90,47 +75,54 @@ async function run(): Promise<void> {
                 core.info(`Found tenant with id: ${tenants[0].tenantId}`);
                 core.setOutput('tenant', tenants[0].tenantId);
 
-                // core.setFailed(`Could not tenant id from azure.yml: ${contents}`);
+                // core.setFailed(`Could not tenant id from project.yml: ${contents}`);
             }
 
-            // allow for override of extension
-            if (azure.fidalgo.extension) {
-                core.info(`Found fidalgo extension in azure.yml file: ${azure.fidalgo.extension}`);
-                core.setOutput('fidalgo', azure.fidalgo.extension);
+            if (project.fidalgo) {
+                core.info('Found fidalgo section in project.yml file');
+
+                // allow for override of extension
+                if (project.fidalgo.extension) {
+                    core.info(`Found fidalgo extension in project.yml file: ${project.fidalgo.extension}`);
+                    core.setOutput('fidalgo', project.fidalgo.extension);
+                } else {
+                    // use default extension
+                    core.info(`No fidalgo extension found in project.yml file, using default: ${DEVAULT_FIDALGO_EXTENSION}`);
+                    core.setOutput('fidalgo', DEVAULT_FIDALGO_EXTENSION);
+                }
+
+                if (project.fidalgo.project) {
+                    core.info('Found fidalgo project section in project.yml file');
+
+                    if (project.fidalgo.project.name) {
+                        core.info(`Found fidalgo project name in project.yml file: ${project.fidalgo.project.name}`);
+                        core.setOutput('project_name', project.fidalgo.project.name);
+                    } else {
+                        core.setFailed(`Could not get fidalgo project name from project.yml: ${contents}`);
+                    }
+
+                    if (project.fidalgo.project.group) {
+                        core.info(`Found fidalgo project group in project.yml file: ${project.fidalgo.project.group}`);
+                        core.setOutput('project_group', project.fidalgo.project.group);
+                    } else {
+                        core.setFailed(`Could not get fidalgo project group from project.yml: ${contents}`);
+                    }
+
+                    if (project.fidalgo.catalog_item) {
+                        core.info(`Found fidalgo catalog item in project.yml file: ${project.fidalgo.catalog_item}`);
+                        core.setOutput('catalog_item', project.fidalgo.catalog_item);
+                    } else {
+                        core.setFailed(`Could not get fidalgo catalog item from project.yml: ${contents}`);
+                    }
+
+                } else {
+                    core.setFailed(`No fidalgo project section found in project.yml file: ${contents}`);
+                }
             } else {
-                // use default extension
-                core.info(`No fidalgo extension found in azure.yml file, using default: ${DEVAULT_FIDALGO_EXTENSION}`);
-                core.setOutput('fidalgo', DEVAULT_FIDALGO_EXTENSION);
-            }
-
-            const projectName = azure.fidalgo.project.name;
-
-            if (projectName) {
-                core.info(`Found project name in azure.yml file: ${projectName}`);
-                core.setOutput('project_name', projectName);
-            } else {
-                core.setFailed(`Could not get project name from azure.yml: ${contents}`);
-            }
-
-            const projectGroup = azure.fidalgo.project.group;
-
-            if (projectGroup) {
-                core.info(`Found project group in azure.yml file: ${projectGroup}`);
-                core.setOutput('project_group', projectGroup);
-            } else {
-                core.setFailed(`Could not get project group from azure.yml: ${contents}`);
-            }
-
-            const catalogItem = azure.fidalgo.catalog_item;
-
-            if (catalogItem) {
-                core.info(`Found catalog item in azure.yml file: ${catalogItem}`);
-                core.setOutput('catalog_item', catalogItem);
-            } else {
-                core.setFailed(`Could not get catalog item from azure.yml: ${contents}`);
+                core.setFailed(`No fidalgo section found in project.yml file: ${contents}`);
             }
         } else {
-            core.setFailed(`Could not find azure.yml file with specified glob: ${pattern}`);
+            core.setFailed(`Could not find project.yml file with specified glob: ${pattern}`);
         }
     } catch (error) {
         if (error instanceof Error) core.setFailed(error.message);
