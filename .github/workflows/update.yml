@@ -8,7 +8,7 @@ on:
 concurrency: ${{ github.event.number || github.ref_name }}
 
 jobs:
-  get_env:
+  config:
     if: github.event_name == 'pull_request' || (contains(github.event.ref, 'refs/heads') && !github.event.created)
     name: Get Environment
     uses: ./.github/workflows/env_config.yml
@@ -20,7 +20,7 @@ jobs:
     needs: config
     environment:
       name: ${{ needs.config.outputs.type }}
-      # url: '/subscriptions/${{ needs.get_env.outputs.subscription }}/resourceGroups/${{ secrets.PROJECT_NAME }}-${{ needs.get_env.outputs.name }}'
+      # url: '/subscriptions/${{ needs.config.outputs.subscription }}/resourceGroups/${{ secrets.PROJECT_NAME }}-${{ needs.config.outputs.name }}'
 
     steps:
       - name: Login to Azure CLI
@@ -36,7 +36,7 @@ jobs:
           createIfNotExists: true
 
       # - name: Install Fidalgo CLI Extension
-      #   run: az extension add -s ${{ needs.get_env.outputs.fidalgo }} -y
+      #   run: az extension add -s ${{ needs.config.outputs.fidalgo }} -y
 
       - name: Update Environment
         if: ${{ needs.msdev.outputs.exists == 'true' && needs.msdev.outputs.created == 'false' }}
