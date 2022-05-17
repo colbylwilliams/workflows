@@ -3,11 +3,11 @@ name: Try Stuff
 on:
   push:
 
+permissions: write-all
 jobs:
   init:
     name: Ensure GitHub Environments
     runs-on: ubuntu-latest
-    permissions: read-all|write-all
 
     steps:
       - name: Ensure GitHub Environments
